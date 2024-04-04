@@ -139,7 +139,7 @@ if [[ monitor_running -eq 1 && vc_running -eq 1 ]]; then
     
         # 如果计数器小于20，继续检查
         if [[ $zero_cpu_count -lt 20 ]]; then
-            echo "正在检查... ($i/10)"
+            echo "正在检查... ($i/20)"
             sleep 5
         else
             echo "连续20次检测到至少一个容器的CPU使用率为0.00%，可能需要重启..."
