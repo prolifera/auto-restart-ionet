@@ -125,28 +125,33 @@ if [[ monitor_running -eq 1 && vc_running -eq 1 ]]; then
             exit 0  # 退出脚本
         fi
 
-        # 判断是否两个容器的CPU使用率都为0.00%
-        if [[ $total_containers -eq 2 ]] && [[ $zero_cpu_containers -eq 2 ]]; then
-            ((zero_cpu_count++))
-        else
-            zero_cpu_count=0  # 如果任何一次检查不满足条件，重置计数器
-            echo 'CPU占用率大于0,结束检查'
-            exit 0
+            # 判断两个容器的CPU使用率是否都不为0.00%
+        if [[ $total_containers -eq 2 ]]; then
+            # 如果两个容器的CPU使用率都不为0.00%，则重置计数器并退出
+            if [[ $zero_cpu_containers -eq 0 ]]; then
+                echo "一次检查中两个容器的CPU占用率都大于0, 结束检查"
+                zero_cpu_count=0
+                exit 0
+            else
+                ((zero_cpu_count++))
+            fi
         fi
-
-        if [[ $zero_cpu_count -lt 5 ]]; then
-            echo "正在检查... ($i/5)"
+    
+        # 如果计数器小于20，继续检查
+        if [[ $zero_cpu_count -lt 20 ]]; then
+            echo "正在检查... ($i/20)"
             sleep 5
         else
-            echo "连续5次检测到两个容器的CPU使用率都为0.00%，正在初始化重启过程..."
-            send_dingtalk_notification "CPU使用率过低" "连续5次检查发现两个容器的CPU使用率都为0.00%，即将进行重启操作"
+            echo "连续20次检测到至少一个容器的CPU使用率为0.00%，可能需要重启..."
+            # 这里你可以调用发送钉钉通知的函数和执行重启的函数
+            send_dingtalk_notification "CPU使用率检测" "连续20次检测到至少一个容器的CPU使用率为0.00%，考虑重启"
             execute_and_notify
-            exit 0  # 退出脚本
+            break
         fi
     done
 
-    if [[ $zero_cpu_count -ne 5 ]]; then
-        echo "5次检查后，未发现需要重启的条件。"
+    if [[ $zero_cpu_count -ne 20 ]]; then
+        echo "20次检查后，未发现需要重启的条件。"
     fi
 else
     echo "io-launch执行中，或是必要的容器未全部运行，不执行重启操作。"
