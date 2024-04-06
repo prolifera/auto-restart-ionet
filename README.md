@@ -4,7 +4,7 @@
 每30分钟一次，监测ionet容器状况，当遇到以下三种情况之一时，重启容器
 - ionet-launch容器不存在，同时monitor和vc容器不存在
 - ionet-launch容器持续时间超过一小时
-- vc和monitor存在，但是两个容器的cpu占用连续30s是0%
+- vc和monitor存在，但是两个容器的cpu占用连续100s是0%
 
 # 依赖配置
 ## 必要环境变量
